@@ -70,3 +70,12 @@ To validate the infrastructure services (DHCP/DNS) and central management capabi
    * Navigated to System Properties -> Computer Name Changes.
    * Modified Hostname to `CLIENT-01`.
    * Authenticated against the Domain Controller using Domain Administrator credentials to complete the Secure Domain Join.
+
+## Step 7: Automated User Provisioning via PowerShell (Infrastructure as Code)
+Manually creating user accounts is inefficient and prone to human error. To align with modern DevOps and SysAdmin workflows, I developed and executed a PowerShell automation script to structure the Directory Environment.
+
+### PowerShell Automation Script
+The script programmatically performs the following enterprise tasks:
+1. Provisions standard **Organizational Units (OUs)** based on department structures (`IT`, `HR`, `Finance`).
+2. Generates user accounts using standard naming conventions (`firstinitial + lastname`).
+3. Establishes secure default passwords (`UserPassword123!`) and places them directly into their respective OUs.
