@@ -23,3 +23,9 @@ To simulate a real-world enterprise environment, all virtual machines are isolat
 2. Configured the Network CIDR to `192.168.10.0/24`.
 <img width="1159" height="80" alt="image" src="https://github.com/user-attachments/assets/a2dbdff1-b982-4478-b3c0-51b733a2f8e4" />
 
+## 🖥️ Step 2: Windows Server 2022 Installation
+1. Provisioned a new Virtual Machine (`DC-01`) with 2 vCPUs, 4GB RAM, and a 50GB VHD.
+2. Attached the network adapter to `AD-Lab-Network`.
+3. Installed **Windows Server 2022 Standard (Desktop Experience)**.
+4. Configured the local Administrator account.
+
