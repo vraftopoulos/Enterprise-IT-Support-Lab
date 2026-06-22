@@ -39,19 +39,7 @@ In an enterprise environment, Domain Controllers require predictable network ide
    * **Default Gateway:** `192.168.10.1`
    * **Preferred DNS:** `127.0.0.1` (Loopback address, pointing to itself as the primary DNS server)
 
-## ⚙️ Step 3: Network Configuration & Hostname Assignment
-In an enterprise environment, Domain Controllers require predictable network identities. Dynamic IPs (DHCP) can cause critical failures in DNS resolution and authentication.
-
-1. **Hostname Change:** Renamed the server from its default generated name to `DC-01`.
-2. **Static IP Assignment:** Configured the IPv4 properties manually to isolate the DC and prepare it for the DNS role.
-   * **IP Address:** `192.168.10.10`
-   * **Subnet Mask:** `255.255.255.0`
-   * **Default Gateway:** `192.168.10.1`
-   * **Preferred DNS:** `127.0.0.1` (Loopback address, pointing to itself as the primary DNS server)
-
-
-
-## 🌳 Step 4: Active Directory Domain Services (AD DS) Installation & Promotion
+## Step 4: Active Directory Domain Services (AD DS) Installation & Promotion
 To establish the enterprise identity paradigm, the server was promoted to a Domain Controller, establishing a new Active Directory Forest.
 
 1. **Role Installation:** Installed the **Active Directory Domain Services** and **DNS Server** roles via Server Manager.
