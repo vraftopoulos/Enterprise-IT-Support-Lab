@@ -79,3 +79,26 @@ The script programmatically performs the following enterprise tasks:
 1. Provisions standard **Organizational Units (OUs)** based on department structures (`IT`, `HR`, `Finance`).
 2. Generates user accounts using standard naming conventions (`firstinitial + lastname`).
 3. Establishes secure default passwords (`UserPassword123!`) and places them directly into their respective OUs.
+
+## Step 8: Production Validation & Enterprise Group Policy (GPO) Implementation
+To finalize the deployment, identity verification was conducted, and centralized administrative controls were enforced via Group Policy Objects (GPOs).
+
+### 1. Client-Side Authentication Success
+* Successfully authenticated onto `CLIENT-01` using the programmatically generated domain account: `mydomain.local\jdoe`.
+* Verified that Active Directory successfully provisioned a roaming local profile and enforced organizational domain restrictions upon workstation initialization.
+
+### 2. Group Policy Object (GPO) Security Hardening
+To demonstrate centralized system security management, a strict compliance policy was established:
+* **Policy Name:** `Restrict_Users_GPO`
+* **Objective:** Prevent non-administrative personnel from executing arbitrary scripts or commands via the Command Prompt to mitigate lateral movement risks.
+* **Path:** `User Configuration -> Policies -> Administrative Templates -> System -> Prevent access to the command prompt -> Enabled`.
+
+
+---
+
+## Key Takeaways & Skills Demonstrated
+By architecting and completing this hands-on Home Lab, I have successfully simulated and managed an enterprise-level Active Directory infrastructure, proving competencies in:
+* **Network Infrastructure & Administration:** Managing isolated NAT Networks, configuring static routing, and executing DHCP/DNS role authorization.
+* **Directory Services Architecture:** Domain Controller promotion, Active Directory design layout, and structural OU hierarchy.
+* **Automation & Scripting:** Utilizing **PowerShell** for automated batch-user provisioning (Infrastructure as Code mentality).
+* **Enterprise Security Policy Enforcement:** Mitigating insider threats and securing client endpoints utilizing **Group Policy Objects (GPOs)**.
