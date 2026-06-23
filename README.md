@@ -244,4 +244,18 @@ Configured the application execution constraints under `Security Settings -> App
 * Logged in under user context `jdoe` and attempted to execute an unapproved standalone binary wrapper downloaded into the local profile environment.
 * Verified compliance enforcement; the Windows kernel intercepted the execution thread, dropping the operation and delivering the administrative blockage notification banner.
 
+## 📜 Step 20: Centralized Logging via Windows Event Forwarding (WEF)
+To establish operational visibility and secure audit trails against anti-forensics techniques (e.g., local log clearing by malicious actors), enterprise Windows Event Forwarding (WEF) was implemented.
+
+### 1. Collector Initialization
+* Configured `DC-01` as the central Log Collector utilizing the native Windows Event Collector utility (`wecutil qc`), provisioning high-performance HTTP listeners for event ingestion.
+
+### 2. GPO Target Orchestration
+Created a dedicated asset delivery GPO named `Event_Forwarding_GPO` linked strictly to the Workstations OU. Configured under `Computer Configuration -> Policies -> Administrative Templates -> Windows Components -> Event Forwarding`:
+* **Configure target Subscription Manager:** Programmatically bound managed endpoints to look up the secure management URI: `Server=http://<DC_IP>:5985/wsman/SubscriptionManager/WEC,Refresh=60`.
+
+### 3. Subscription Ruleset & Verification
+* Created a *Source-Initiated Subscription* within the Event Viewer database on `DC-01` targeting the `Domain Computers` global identifier.
+* Scoped data ingestion explicitly to **Security** and **System** channels filtering for Critical, Warning, and Audit Failure structural IDs.
+* Triggered synchronization via `gpupdate /force` on `CLIENT-01`. Generated purposeful login evaluation failures to trigger audit tracking, and verified real-time event pipeline redirection inside the **Forwarded Events** repository on the Domain Controller.
 
