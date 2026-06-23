@@ -169,3 +169,79 @@ A dedicated GPO named `Drive_Mapping_GPO` was leveraged to dynamically push infr
 * Triggered network synchronization on the workstation endpoint using the operational command pipeline execution via `Windows + R -> gpupdate /force`.
 * Navigated to *This PC* on `CLIENT-01` under user context `jdoe` and verified the seamless operational mounting of the `S:` network volume.
 * Confirmed bidirectional stability by executing folder read/write stress-tests mirroring active production deployments.
+
+* ## Step 13: Automated Software Deployment via Group Policy
+To streamline endpoint provisioning and eliminate manual software configuration workflows, centralized software deployment was orchestrated utilizing Windows Server's native deployment engine.
+
+### 1. Repository Configuration
+* Downloaded the enterprise-grade Google Chrome MSI package (`googlechrome.msi`).
+* Established a secure distribution repository at `C:\Software` on `DC-01`, configured as a read-only network SMB share accessible globally via UNC: `\\dc-01\Software\googlechrome.msi`.
+
+### 2. GPO Package Assignment
+A dedicated GPO named `Software_Deployment_GPO` was linked to the environment. The software distribution properties were defined under `Computer Configuration -> Policies -> Software Settings -> Software installation`:
+
+* **Deployment Method:** Set to **Assigned**.
+* **Targeting:** Configured using the strict network UNC path to ensure the endpoint system contexts can retrieve the binaries during network bootstrapping.
+
+### 3. Verification & Compliance Delivery
+* Executed a complete system restart on `CLIENT-01` to trigger early-stage computer boot execution blocks.
+* Monitored the initial boot cycle; the Windows subsystem successfully captured the GPO directive, displaying the standard installation message banner.
+* Verified compliance post-authentication; Google Chrome was deployed natively across the operating system layer, visible on user `jdoe`'s desktop without manual administrative intervention.
+
+* ## Step 14: Disaster Recovery & User Data Resilience (Folder Redirection)
+To prevent corporate data loss from physical endpoint failures and streamline workstation migrations, a centralized Folder Redirection architecture was deployed.
+
+### 1. File Server Infrastructure
+* Provisioned a baseline storage repository on `DC-01` at `C:\UserProfiles`.
+* Configured advanced SMB sharing permissions enabling `Everyone: Full Control`, allowing the Active Directory subsystem to programmatically provision and sandbox isolated user directories with strict NTFS inherited ownership.
+
+### 2. GPO Technical Specifications
+A dedicated GPO named `Folder_Redirection_GPO` was mapped under `User Configuration -> Policies -> Windows Settings -> Folder Redirection -> Desktop`:
+
+* **Setting applied:** `Basic - Redirect everyone's folder to the same location`.
+* **Placement Option:** `Create a folder for each user under the root path`.
+* **Root UNC Path:** `\\dc-01\UserProfiles`.
+* **Result:** The local user shell environment dynamically targets the network repository, seamlessly migrating the local Desktop profile data to the Server over SMB.
+
+### 3. Administrative Verification
+* Executed environmental policy evaluation on `CLIENT-01` using `gpupdate /force` and authorized the requested user session logoff.
+* Authenticated as user `jdoe` and generated a dummy file (`jdoe_important_file.txt`) directly onto the client desktop surface.
+* Inspected `DC-01` under `C:\UserProfiles\jdoe\Desktop` and verified that the file systems synchronized seamlessly, ensuring high-availability data compliance.
+
+* ## Step 16: Centralized Network Security & Firewall Hardening
+To establish an internal network security perimeter and prevent lateral threat proliferation (e.g., Ransomware/Worm propagation), Endpoint Firewall management was operationalized and locked via GPO.
+
+### 1. Global Policy Enforcement
+Constructed a baseline security GPO named `Firewall_Hardening_GPO` targeting all active managed assets. Configured under `Computer Configuration -> Policies -> Windows Settings -> Security Settings -> Windows Defender Firewall with Advanced Security`:
+* **State Synchronization:** Mandated the Firewall state to **ON** across all functional profiles: *Domain*, *Private*, and *Public*.
+* **UI Hardening:** Programmatically restricted local structural overrides, preventing users or malicious software from deactivating network protections.
+
+### 2. Controlled Exception Provisioning (ICMPv4/Ping)
+To maintain administrative diagnostics without widening the endpoint attack surface, a strict inbound exception rule was pushed:
+* **Rule Logic:** Leveraged the predefined `File and Printer Sharing` framework.
+* **Scope Isolation:** Enforced a single, isolated inbound exception for **`Echo Request - ICMPv4-In`**, discarding generic file-sharing protocols.
+* **Execution:** Enabled secure bidirectional packet routing exclusively for network heartbeat mapping (`ping`).
+
+### 3. Verification & Compliance Logging
+* Forced environmental distribution using `gpupdate /force` on `CLIENT-01`.
+* Inspected the client-side Firewall settings interface; verified the interface was successfully locked with the administrative banner warning.
+* Executed an ICMP diagnostics evaluation from `DC-01` to `CLIENT-01` and validated stable, successful packet response streams over the secure channel.
+
+* ## 🛑 Step 17: Application Whitelisting & Ransomware Mitigation (AppLocker)
+To neutralize the execution of unauthorized software, shadow IT applications, and untrusted binaries (e.g., Ransomware payloads) within user profiles, an AppLocker application control baseline was enforced.
+
+### 1. Service Orchestration
+Created a dedicated GPO named `AppLocker_Policy_GPO`. To ensure client-side compliance engine availability, the endpoint subsystem was configured under `Computer Configuration -> Policies -> Windows Settings -> Security Settings -> System Services`:
+* **Application Identity Service:** Set to **Automatic** initialization.
+
+### 2. Rule Blueprint & Enforcement Settings
+Configured the application execution constraints under `Security Settings -> Application Control Policies -> AppLocker -> Executable Rules`:
+* **Baseline Authorization:** Generated the standard Windows **Default Rules** matrix. This workflow authorizes binary operations strictly bounded to secure system roots (`%systemroot%\*` and `%programfiles%\*`).
+* **Enforcement State:** Armed the structural architecture to **Enforce Rules** state, successfully blacklisting execution capabilities on user-writable paths such as `C:\Users\*`.
+
+### 3. Verification Posture
+* Deployed policies to `CLIENT-01` via execution pipeline redirection and recycling cycles (`gpupdate /force` & system reboot).
+* Logged in under user context `jdoe` and attempted to execute an unapproved standalone binary wrapper downloaded into the local profile environment.
+* Verified compliance enforcement; the Windows kernel intercepted the execution thread, dropping the operation and delivering the administrative blockage notification banner.
+
+
