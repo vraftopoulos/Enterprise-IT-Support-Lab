@@ -102,3 +102,70 @@ By architecting and completing this hands-on Home Lab, I have successfully simul
 * **Directory Services Architecture:** Domain Controller promotion, Active Directory design layout, and structural OU hierarchy.
 * **Automation & Scripting:** Utilizing **PowerShell** for automated batch-user provisioning (Infrastructure as Code mentality).
 * **Enterprise Security Policy Enforcement:** Mitigating insider threats and securing client endpoints utilizing **Group Policy Objects (GPOs)**.
+
+* ## Step 9: Enterprise Password Policy & Brute-Force Protection (Account Lockout)
+To satisfy strict regulatory compliance and protect corporate identities from automated brute-force or dictionary attacks, severe account security baselines were enforced.
+
+### 1. Configuration Parameters
+Modifications were applied directly to the **Default Domain Policy** under `Computer Configuration -> Policies -> Windows Settings -> Security Settings -> Account Policies`:
+
+* **Password Complexity & Length:** Enforced a minimum password length of **12 characters** and enabled cryptographic complexity rules (requiring uppercase, lowercase, digits, and special characters).
+* **Account Lockout Threshold:** Accounts are programmatically locked after **5 consecutive failed logon attempts**.
+* **Account Lockout Duration:** Implemented a **30-minute cooling period** before the system auto-unlocks the account, mitigating automated persistence attempts.
+
+### 2. Administrative Verification
+* Tested the policy on the client workstation (`CLIENT-01`) by simulating a brute-force scenario on user account `jdoe`.
+* Verified that the domain account successfully locked down after the 5th attempt.
+* Demonstrated administrative remediation by navigating to *Active Directory Users and Computers* on `DC-01` and manually unlocking the staff token.
+
+* ## Step 10: Peripheral Security & Data Loss Prevention (DLP) - USB Blocking
+To mitigate the risk of corporate data exfiltration and insider threats via unauthorized physical media (USB flash drives, external hard drives), a strict hardware restriction policy was enforced.
+
+### 1. Configuration Parameters
+A dedicated GPO named `Block_USB_GPO` was created and linked to the root domain. The policy targets machine-level baselines under `Computer Configuration -> Policies -> Administrative Templates -> System -> Removable Storage Access`:
+
+* **Setting enforced:** `All Removable Storage classes: Deny all access` -> **Enabled**.
+* **Impact:** This configuration completely isolates the operating system's kernel from mounting external storage volumes, preventing both data copying (Read/Write) and execution of untrusted payloads (e.g., malicious `.exe` or BadUSB scripts).
+
+### 2. Administrative Verification
+* Enforced immediate policy distribution on `CLIENT-01` via `gpupdate /force`.
+* Simulated a hardware insertion attack by mounting a physical USB drive through the host hypervisor integration.
+* Confirmed endpoint enforcement; the system accurately generated an **"Access is Denied"** dialogue box when attempting file system traversal.
+
+* ## Step 11: Enterprise Branding & Desktop Compliance Deployment
+To ensure visual uniformity across corporate assets and enforce branding compliance guidelines, a centralized desktop background policy was deployed.
+
+### 1. Infrastructure Preparation (Network Share)
+* Created a secure, read-only directory network share at `C:\Branding` on `DC-01`.
+* Stored the enterprise background image (`company_wallpaper.jpg`) and distributed it via the Universal Naming Convention (UNC) path: `\\dc-01\Branding\company_wallpaper.jpg`.
+
+### 2. GPO Configuration Parameters
+A dedicated GPO named `Company_Wallpaper_GPO` was created and linked to the root domain. Configurations were mapped under `User Configuration -> Policies -> Administrative Templates -> Desktop -> Desktop`:
+
+* **Desktop Wallpaper:** Set to **Enabled** and pointed to the UNC network path with a style parameter of **Fill**.
+* **Prohibit Changing Wallpaper:** Set to **Enabled** to strip end-users of local customization privileges over desktop environments.
+
+### 3. Administrative Verification
+* Triggered immediate compliance on `CLIENT-01` utilizing `gpupdate /force` and performed a user session refresh.
+* Confirmed that user `jdoe` successfully inherited the corporate wallpaper.
+* Verified security enforcement; the Windows Settings layout successfully locked the background modification options, flashing the standard *"Some settings are managed by your organization"* restriction banner.
+
+* ## Step 12: Centralized Storage Architecture & Automated Drive Mapping
+To eliminate localized storage dependencies and safeguard institutional data assets, an automated, server-side distributed storage network was established.
+
+### 1. File Server Infrastructure Configuration
+* Provisioned a centralized storage repository on `DC-01` located at `C:\CompanyShares\IT_Share`.
+* Implemented SMB (Server Message Block) file-sharing permissions, granting network execution capabilities (`Read/Write/Change`) to targeted domain profiles.
+
+### 2. GPO Drive Maps Redirection
+A dedicated GPO named `Drive_Mapping_GPO` was leveraged to dynamically push infrastructure attachments. Configured under `User Configuration -> Preferences -> Windows Settings -> Drive Maps`:
+
+* **Action type:** `Update`
+* **Remote Path Targeting (UNC):** `\\dc-01\CompanyShares\IT_Share`
+* **Device Letter Mapping:** Bound uniformly to environmental mount point **`S:`**.
+* **Display Label:** Identified globally across endpoints as `IT Department Share`.
+
+### 3. Administrative Verification
+* Triggered network synchronization on the workstation endpoint using the operational command pipeline execution via `Windows + R -> gpupdate /force`.
+* Navigated to *This PC* on `CLIENT-01` under user context `jdoe` and verified the seamless operational mounting of the `S:` network volume.
+* Confirmed bidirectional stability by executing folder read/write stress-tests mirroring active production deployments.
